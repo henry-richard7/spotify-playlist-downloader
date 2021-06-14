@@ -1,0 +1,15 @@
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Spotify Playlist Downloader.exe.config
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Spotify Playlist Downloader.exe
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Spotify Playlist Downloader.pdb
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify Playlist Downloader.csproj.AssemblyReference.cache
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify_Playlist_Downloader.Form1.resources
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify_Playlist_Downloader.Properties.Resources.resources
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify Playlist Downloader.csproj.GenerateResource.cache
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify Playlist Downloader.csproj.CoreCompileInputs.cache
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify Playlist Downloader.exe
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify Playlist Downloader.pdb
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Leaf.xNet.dll
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Leaf.xNet.xml
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Henry\source\repos\Spotify Playlist Downloader\Spotify Playlist Downloader\obj\Debug\Spotify Playlist Downloader.csproj.CopyComplete
