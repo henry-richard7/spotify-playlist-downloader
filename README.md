@@ -32,7 +32,7 @@
 * Third it uses tageditor to edit metadata for songs.
 
 # 📸 Screenshots
-![Spotify Playlist Downloader](https://user-images.githubusercontent.com/68910039/121838571-c50dc580-ccf5-11eb-8a80-db35f1f990dd.jpg)
+![Screenshot](https://user-images.githubusercontent.com/68910039/153007221-30401c0b-7fcd-4475-8011-63d35bd327b2.png)
 
 # My Youtube Channel
 [![](https://img.shields.io/badge/Subscribe-red?style=for-the-badge&logo=YouTube)](https://www.youtube.com/channel/UCVGasc5jr45eZUpZNHvbtWQ)
