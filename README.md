@@ -1,6 +1,10 @@
 # Badges
 ![Downloads](https://img.shields.io/github/downloads/henry-richard7/spotify-playlist-downloader/total.svg?style=for-the-badge&logo=github)
 
+# New Version Available
+
+https://github.com/henry-richard7/Spotify-Downloader
+
 # spotify-playlist-downloader
  A C# GUI application that allows you to download songs from youtube-dl by using metadata from spotify.
 
