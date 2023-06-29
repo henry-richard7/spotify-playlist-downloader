@@ -101,6 +101,7 @@ namespace Spotify_Playlist_Downloader
             this.textBox_PlaylistID.Name = "textBox_PlaylistID";
             this.textBox_PlaylistID.Size = new System.Drawing.Size(478, 21);
             this.textBox_PlaylistID.TabIndex = 0;
+            this.textBox_PlaylistID.Text = "https://open.spotify.com/playlist/5iwWRsTR7OBdgQFCCdvAnB?si=c2daf73707b64332";
             this.textBox_PlaylistID.TextChanged += new System.EventHandler(this.TextBox_PlaylistID_TextChanged);
             // 
             // listView_SongsList

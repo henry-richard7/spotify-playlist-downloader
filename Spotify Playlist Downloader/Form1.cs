@@ -20,6 +20,8 @@ namespace Spotify_Playlist_Downloader
 {
     public partial class Form1 : Form
     {
+        private DownloadHelper helper;
+
         public Form1()
         {
             InitializeComponent();
@@ -32,7 +34,7 @@ namespace Spotify_Playlist_Downloader
         private void EnableElements()
         {
             buttonGetSongs.Enabled = !string.IsNullOrEmpty(textBox_PlaylistID.Text);
-            btnDownloadAll.Enabled = !string.IsNullOrEmpty(textBox_PlaylistID.Text) && playlistArray != null && playlistArray.HasValues;
+            btnDownloadAll.Enabled = !string.IsNullOrEmpty(textBox_PlaylistID.Text) && playlistItems != null && playlistItems.Count > 0;
         }
 
         /// <summary>
@@ -43,48 +45,25 @@ namespace Spotify_Playlist_Downloader
             MessageBox.Show($"Done! Downloaded {downloaded} songs, skipped {skipped} already existing songs!");
         }
 
-        JArray playlistArray;
-
         List<Item> playlistItems;
-
         int downloaded, skipped;
 
         private void buttonGetSongs_Click(object sender, EventArgs e)
         {
             // init
             listView_SongsList.Items.Clear();
-            ImageList downloadedImages = new ImageList();
-            downloadedImages.ImageSize = new Size(236, 236);
-            downloadedImages.ColorDepth = ColorDepth.Depth32Bit;
-            listView_SongsList.LargeImageList = downloadedImages;
+            helper = new DownloadHelper(textBox_PlaylistID.Text);
 
             try
             {
-                // fail early - check playlistid
-                var playlistId = GetPlaylistId();
-
-                // get spotify token for download
-                HttpRequest tokenRequest = new HttpRequest();
-                tokenRequest.UserAgent = Http.ChromeUserAgent();
-                String tokenJson = tokenRequest.Get("https://open.spotify.com/get_access_token?reason=transport&productType=web_player").ToString();
-                JObject spotifyJsonToken = JObject.Parse(tokenJson);
-                String spotifyToken = spotifyJsonToken.SelectToken("accessToken").ToString();
-
-                // get playlist info
-                HttpRequest getSpotifyPlaylist = new HttpRequest();
-                getSpotifyPlaylist.AddHeader("Authorization", "Bearer " + spotifyToken);
-                String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks?offset=0&limit=100").ToString();
-
-                // deserialize to list
-                Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(playlist);
-                playlistItems = myDeserializedClass.items;
+                helper.GetPlayListItems();                
 
                 // playlist items to listview
-                for (int i = 0; i < playlistItems.Count; i++)
+                for (int i = 0; i < helper.PlayListItems.Count; i++)
                 {
-                    listView_SongsList.Items.Add(playlistItems[i].track.name, i);
-                    listView_SongsList.LargeImageList.Images.Add(playlistItems[i].track.GetImage());
+                    listView_SongsList.Items.Add(helper.PlayListItems[i].track.name, i);                    
                 }
+                listView_SongsList.LargeImageList = helper.PlayListItemsImageList;
             }
             catch
             {
@@ -134,7 +113,7 @@ namespace Spotify_Playlist_Downloader
         {
             downloaded = 0;
             skipped = 0;
-            DownloadSingleItem(playlistArray[listView_SongsList.FocusedItem.Index], Environment.CurrentDirectory + @"\\Downloads");
+            DownloadSingleItem(playlistItems[listView_SongsList.FocusedItem.Index], Environment.CurrentDirectory + @"\\Downloads");
             ShowResult();
         }
 
@@ -144,7 +123,7 @@ namespace Spotify_Playlist_Downloader
         /// </summary>
         /// <param name="playListItem">The item to download</param>
         /// <param name="targetFolder">The target folder for the download</param>
-        private void DownloadSingleItem(JToken playListItem, string targetFolder)
+        private void DownloadSingleItem(Item item, string targetFolder)
         {
             // create targetfolde if not exists
             if (!Directory.Exists(targetFolder))
@@ -153,13 +132,13 @@ namespace Spotify_Playlist_Downloader
             }
 
             var client = new WebClient();
-            client.DownloadFile(playListItem.SelectToken("track").SelectToken("album").SelectToken("images")[0].SelectToken("url").ToString(), targetFolder + "/thumb.jpg");
-
-            string songName = playListItem.SelectToken("track").SelectToken("name").ToString();
+            client.DownloadFile(item.track.album.images[0].url, targetFolder + "/thumb.jpg");
+            
+            string songName = item.track.name;
             string songNameFile = songName.RemoveSpecialChars();
-            string artists = playListItem.SelectToken("track").SelectToken("artists")[0].SelectToken("name").ToString();
+            string artists = item.track.artists[0].name;
             string artistsFile = artists.RemoveSpecialChars();
-            string songAlbum = playListItem.SelectToken("track").SelectToken("album").SelectToken("name").ToString();
+            string songAlbum = item.track.album.name;
             string songAlbumFile = songAlbum.RemoveSpecialChars();
 
             // only process if file not exists
@@ -223,12 +202,12 @@ namespace Spotify_Playlist_Downloader
             downloaded = 0;
             skipped = 0;
 
-            if (playlistArray == null || !playlistArray.HasValues)
+            if (playlistItems == null || playlistItems.Count == 0)
             {
                 return;
             }
             // download all
-            foreach (var item in playlistArray)
+            foreach (var item in playlistItems)
             {
                 DownloadSingleItem(item, Environment.CurrentDirectory + @"\\Downloads");
             }
