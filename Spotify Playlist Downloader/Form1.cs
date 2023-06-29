@@ -1,5 +1,7 @@
 ﻿using Leaf.xNet;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spotify_Playlist_Downloader.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -41,64 +44,47 @@ namespace Spotify_Playlist_Downloader
         }
 
         JArray playlistArray;
+
+        List<Item> playlistItems;
+
         int downloaded, skipped;
 
         private void buttonGetSongs_Click(object sender, EventArgs e)
         {
+            // init
             listView_SongsList.Items.Clear();
+            ImageList downloadedImages = new ImageList();
+            downloadedImages.ImageSize = new Size(236, 236);
+            downloadedImages.ColorDepth = ColorDepth.Depth32Bit;
+            listView_SongsList.LargeImageList = downloadedImages;
 
-            ImageList dowloadedImages = new ImageList();
-            dowloadedImages.ImageSize = new Size(236, 236);
-            dowloadedImages.ColorDepth = ColorDepth.Depth32Bit;
-
-            dowloadedImages.Images.Clear();
             try
             {
-                // fail early
+                // fail early - check playlistid
                 var playlistId = GetPlaylistId();
 
+                // get spotify token for download
                 HttpRequest tokenRequest = new HttpRequest();
                 tokenRequest.UserAgent = Http.ChromeUserAgent();
                 String tokenJson = tokenRequest.Get("https://open.spotify.com/get_access_token?reason=transport&productType=web_player").ToString();
-
                 JObject spotifyJsonToken = JObject.Parse(tokenJson);
-
                 String spotifyToken = spotifyJsonToken.SelectToken("accessToken").ToString();
 
+                // get playlist info
                 HttpRequest getSpotifyPlaylist = new HttpRequest();
                 getSpotifyPlaylist.AddHeader("Authorization", "Bearer " + spotifyToken);
                 String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks?offset=0&limit=100").ToString();
 
-                JObject jobject = JObject.Parse(playlist);
+                // deserialize to list
+                Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(playlist);
+                playlistItems = myDeserializedClass.items;
 
-                playlistArray = JArray.Parse(jobject.SelectToken("items").ToString());
-
-                for (int i = 0; i < playlistArray.Count; i++)
+                // playlist items to listview
+                for (int i = 0; i < playlistItems.Count; i++)
                 {
-                    HttpRequest w = new HttpRequest();
-                    listView_SongsList.Items.Add(playlistArray[i].SelectToken("track").SelectToken("name").ToString(), i);
-                    try
-                    {
-                        var response = w.Get(playlistArray[i].SelectToken("track").SelectToken("album").SelectToken("images")[0].SelectToken("url").ToString());
-                        byte[] imageBytes = response.ToBytes();
-                        MemoryStream memoryStream = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                        memoryStream.Write(imageBytes, 0, imageBytes.Length);
-                        Image imgs = Image.FromStream(memoryStream, true);
-                        dowloadedImages.Images.Add(imgs);
-                    }
-                    catch
-                    {
-                        var response = w.Get("https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/600px-No_image_available.svg.png");
-                        byte[] imageBytes = response.ToBytes();
-                        MemoryStream memoryStream = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                        memoryStream.Write(imageBytes, 0, imageBytes.Length);
-                        Image imgs = Image.FromStream(memoryStream, true);
-                        dowloadedImages.Images.Add(imgs);
-                    }
-
-
+                    listView_SongsList.Items.Add(playlistItems[i].track.name, i);
+                    listView_SongsList.LargeImageList.Images.Add(playlistItems[i].track.GetImage());
                 }
-                listView_SongsList.LargeImageList = dowloadedImages;
             }
             catch
             {
