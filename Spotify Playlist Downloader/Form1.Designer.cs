@@ -123,7 +123,6 @@ namespace Spotify_Playlist_Downloader
             this.donateToolStripMenuItem.Name = "donateToolStripMenuItem";
             this.donateToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.donateToolStripMenuItem.Text = "About";
-            this.donateToolStripMenuItem.Click += new System.EventHandler(this.donateToolStripMenuItem_Click);
             // 
             // paypalToolStripMenuItem
             // 

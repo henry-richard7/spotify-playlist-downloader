@@ -34,6 +34,9 @@ namespace Spotify_Playlist_Downloader
             dowloadedImages.Images.Clear();
             try
             {
+                // fail early
+                var playlistId = GetPlaylistId();
+
                 HttpRequest tokenRequest = new HttpRequest();
                 tokenRequest.UserAgent = Http.ChromeUserAgent();
                 String tokenJson = tokenRequest.Get("https://open.spotify.com/get_access_token?reason=transport&productType=web_player").ToString();
@@ -44,7 +47,7 @@ namespace Spotify_Playlist_Downloader
 
                 HttpRequest getSpotifyPlaylist = new HttpRequest();
                 getSpotifyPlaylist.AddHeader("Authorization", "Bearer " + spotifyToken);
-                String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + GetPlaylistId() + "/tracks?offset=0&limit=100").ToString();
+                String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks?offset=0&limit=100").ToString();
 
                 JObject jobject = JObject.Parse(playlist);
 
@@ -79,7 +82,7 @@ namespace Spotify_Playlist_Downloader
             }
             catch
             {
-                MessageBox.Show("Make Sure You Have passed Playlist ID and Not URL", "Playlist Not Found ERROR");
+                MessageBox.Show("Make sure sou have passed a valid playlist ID or valid URL", "Playlist Not Found ERROR");
             }
 
 
@@ -105,6 +108,7 @@ namespace Spotify_Playlist_Downloader
             try
             {
                 Uri u = new Uri(textBox_PlaylistID.Text);
+                // get the last part
                 retVal = u.Segments[2];
             }
             catch (Exception)
@@ -129,14 +133,10 @@ namespace Spotify_Playlist_Downloader
             string songName = playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("name").ToString();
             string artists = playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("artists")[0].SelectToken("name").ToString();
             string songAlbum = playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("album").SelectToken("name").ToString();
-            
-
-
 
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
             process.StartInfo.FileName = Environment.CurrentDirectory + @"\\youtube-dl.exe";
-
             
             process.StartInfo.Arguments = "-x --no-continue " + "\"" + "ytsearch1: " + songName + " " + artists + "\" " + "--audio-format mp3 --audio-quality 0 -o " + "/Downloads/"+"\"" + songName + " - " + songAlbum +"\""+ "." + "%(ext)s";
             process.Start();
@@ -146,7 +146,6 @@ namespace Spotify_Playlist_Downloader
             tagEditor.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
             
             tagEditor.StartInfo.FileName = Environment.CurrentDirectory + @"\\tageditor.exe";
-
 
             tagEditor.StartInfo.Arguments = "set title=" + "\"" + songName + "\""+" album=" + "\"" + songAlbum + "\"" + " artist=" + "\"" + artists + "\"" + " cover=Downloads/thumb.jpg --files " + "\"" + "Downloads/" + songName + " - " + songAlbum + ".mp3"+"\"";
             tagEditor.Start();
@@ -159,11 +158,6 @@ namespace Spotify_Playlist_Downloader
         private void paypalToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/henry-richard7");
-        }
-
-        private void donateToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void paypalToolStripMenuItem1_Click(object sender, EventArgs e)
