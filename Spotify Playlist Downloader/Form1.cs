@@ -44,7 +44,7 @@ namespace Spotify_Playlist_Downloader
 
                 HttpRequest getSpotifyPlaylist = new HttpRequest();
                 getSpotifyPlaylist.AddHeader("Authorization", "Bearer " + spotifyToken);
-                String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + textBox_PlaylistID.Text + "/tracks?offset=0&limit=100").ToString();
+                String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + GetPlaylistId() + "/tracks?offset=0&limit=100").ToString();
 
                 JObject jobject = JObject.Parse(playlist);
 
@@ -83,6 +83,41 @@ namespace Spotify_Playlist_Downloader
             }
 
 
+        }
+
+        /// <summary>
+        /// Get the playlist id from the textbox
+        /// </summary>
+        /// <returns>The id of the playlist</returns>        
+        private string GetPlaylistId()
+        {
+            // example url: https://open.spotify.com/playlist/37i9dQZF1DX4xuWVBs4FgJ?si=ee30c0f70aa84b59
+            // resulting id: 37i9dQZF1DX4xuWVBs4FgJ
+
+            string retVal = string.Empty;
+
+            if (string.IsNullOrEmpty(textBox_PlaylistID.Text))
+            {
+                throw new Exception("No playlist provided");                
+            }
+
+            // check url
+            try
+            {
+                Uri u = new Uri(textBox_PlaylistID.Text);
+                retVal = u.Segments[2];
+            }
+            catch (Exception)
+            {
+            }
+
+            // no url so it should be an playlist id
+            if (string.IsNullOrEmpty(retVal))
+            {
+                retVal = textBox_PlaylistID.Text;
+            }
+
+            return retVal;            
         }
 
         private void listView_SongsList_MouseClick(object sender, MouseEventArgs e)
