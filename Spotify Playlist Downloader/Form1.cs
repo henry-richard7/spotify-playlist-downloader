@@ -55,50 +55,18 @@ namespace Spotify_Playlist_Downloader
             EnableElements();
         }
 
-        /// <summary>
-        /// Get the playlist id from the textbox
-        /// </summary>
-        /// <returns>The id of the playlist</returns>        
-        private string GetPlaylistId()
-        {
-            // example url: https://open.spotify.com/playlist/37i9dQZF1DX4xuWVBs4FgJ?si=ee30c0f70aa84b59
-            // resulting id: 37i9dQZF1DX4xuWVBs4FgJ
-
-            string retVal = string.Empty;
-
-            if (string.IsNullOrEmpty(textBox_PlaylistID.Text))
-            {
-                throw new Exception("No playlist provided");
-            }
-
-            // check url
-            try
-            {
-                Uri u = new Uri(textBox_PlaylistID.Text);
-                // get the last part
-                retVal = u.Segments[2];
-            }
-            catch (Exception)
-            {
-            }
-
-            // no url so it should be an playlist id
-            if (string.IsNullOrEmpty(retVal))
-            {
-                retVal = textBox_PlaylistID.Text;
-            }
-
-            return retVal;
-        }
-
         private void listView_SongsList_MouseClick(object sender, MouseEventArgs e)
         {
-            helper.ResetCounters();
             helper.DownloadSingleItem(helper.PlayListItems[listView_SongsList.FocusedItem.Index], Environment.CurrentDirectory + @"\\Downloads");
-            ShowResult();
+            if (helper.PlayListItems[listView_SongsList.FocusedItem.Index].DownloadStatus == Models.DownloadStatus.Downloaded)
+            {
+                MessageBox.Show($"Done! Downloaded 1 song.");
+            }
+            else
+            {
+                MessageBox.Show($"Done! skipped 1 song.");
+            }
         }
-
-
 
         private void paypalToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -127,7 +95,7 @@ namespace Spotify_Playlist_Downloader
         /// <param name="e"></param>
         private void BtnDownloadAll_Click(object sender, EventArgs e)
         {
-            helper.DownloadAll();
+            helper.DownloadAll(Environment.CurrentDirectory + @"\\Downloads");
             ShowResult();
         }
 

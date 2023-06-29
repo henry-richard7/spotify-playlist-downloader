@@ -21,17 +21,25 @@ namespace Spotify_Playlist_Downloader
         /// <summary>
         /// Number of songs downloaded in last run
         /// </summary>
-        public int Downloaded { get; private set; }
+        public int Downloaded 
+        {
+            get { return PlayListItems.Count(i => i.DownloadStatus == DownloadStatus.Downloaded); } 
+        }
         /// <summary>
         /// Number of songs skipped in last run
         /// </summary>
-        public int Skipped { get; set; }
+        public int Skipped
+        {
+            get { return PlayListItems.Count(i => i.DownloadStatus == DownloadStatus.Skipped); }
+
+        }
+
+
 
         public DownloadHelper(string playListIdentifier)
         {
             PlayListId = GetPlaylistId(playListIdentifier);
             InitImageList();
-            ResetCounters();
         }
 
         /// <summary>
@@ -44,16 +52,7 @@ namespace Spotify_Playlist_Downloader
             downloadedImages.ColorDepth = ColorDepth.Depth32Bit;
             PlayListItemsImageList = downloadedImages;
         }
-
-        /// <summary>
-        /// Reset download counters
-        /// </summary>
-        public void ResetCounters()
-        {
-            Downloaded = 0;
-            Skipped = 0;
-        }
-
+      
         /// <summary>
         /// Get the playlist items
         /// </summary>
@@ -91,14 +90,17 @@ namespace Spotify_Playlist_Downloader
             return PlayListItems.Any();
         }
 
-        public void DownloadAll()
+        /// <summary>
+        /// Download all songs
+        /// </summary>
+        public void DownloadAll(string targetFolder)
         {
-            ResetCounters();
-
+            // doen in property
             // download all
             foreach (var item in PlayListItems)
             {
-                DownloadSingleItem(item, Environment.CurrentDirectory + @"\\Downloads");
+                Downloader d = new Downloader(item, targetFolder, null);
+                d.DownloadSingleItem();
             }
         }
 
@@ -109,51 +111,8 @@ namespace Spotify_Playlist_Downloader
         /// <param name="targetFolder">The target folder for the download</param>
         public void DownloadSingleItem(Item item, string targetFolder)
         {
-            // create targetfolde if not exists
-            if (!Directory.Exists(targetFolder))
-            {
-                Directory.CreateDirectory(targetFolder);
-            }
-
-            var client = new WebClient();
-            client.DownloadFile(item.track.album.images[0].url, targetFolder + "/thumb.jpg");
-
-            string songName = item.track.name;
-            string songNameFile = songName.RemoveSpecialChars();
-            string artists = item.track.artists[0].name;
-            string artistsFile = artists.RemoveSpecialChars();
-            string songAlbum = item.track.album.name;
-            string songAlbumFile = songAlbum.RemoveSpecialChars();
-
-            // only process if file not exists
-            string target = Path.Combine(targetFolder, songNameFile + " - " + artistsFile + ".mp3");
-            if (File.Exists(target))
-            {
-                Skipped++;
-            }
-            else
-            {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-                process.StartInfo.FileName = Environment.CurrentDirectory + @"\\youtube-dl.exe";
-
-                process.StartInfo.Arguments = "-x --no-continue " + "\"" + "ytsearch1: " + songNameFile + " " + artistsFile + "\" " + "--audio-format mp3 --audio-quality 0 -o " + "/Downloads/" + "\"" + songNameFile + " - " + artistsFile + "\"" + "." + "%(ext)s";
-                process.Start();
-                process.WaitForExit();
-
-                System.Diagnostics.Process tagEditor = new System.Diagnostics.Process();
-                tagEditor.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-
-                tagEditor.StartInfo.FileName = Environment.CurrentDirectory + @"\\tageditor.exe";
-
-                tagEditor.StartInfo.Arguments = "set title=" + "\"" + songName + "\"" + " album=" + "\"" + songAlbum + "\"" + " artist=" + "\"" + artists + "\"" + " cover=Downloads/thumb.jpg --files " + "\"" + "Downloads/" + songNameFile + " - " + artistsFile + ".mp3" + "\"";
-                tagEditor.Start();
-                tagEditor.WaitForExit();
-
-                File.Delete(Path.Combine(targetFolder, songNameFile + " - " + artistsFile + ".mp3.bak"));
-                File.Delete(Path.Combine(targetFolder, "thumb.jpg"));
-                Downloaded++;
-            }
+            Downloader d = new Downloader(item, targetFolder, null);
+            d.DownloadSingleItem();
         }
 
         /// <summary>
