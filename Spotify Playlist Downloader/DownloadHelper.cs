@@ -1,16 +1,14 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Leaf.xNet;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Spotify_Playlist_Downloader.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Leaf.xNet;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Windows.Forms;
 
 namespace Spotify_Playlist_Downloader
 {
@@ -52,7 +50,7 @@ namespace Spotify_Playlist_Downloader
         /// </summary>
         public void ResetCounters()
         {
-            Downloaded = 0; 
+            Downloaded = 0;
             Skipped = 0;
         }
 
@@ -158,11 +156,11 @@ namespace Spotify_Playlist_Downloader
             }
         }
 
-            /// <summary>
-            /// Get the playlist id from the textbox
-            /// </summary>
-            /// <returns>The id of the playlist</returns>        
-            private string GetPlaylistId(string playListIdentifier)
+        /// <summary>
+        /// Get the playlist id from the textbox
+        /// </summary>
+        /// <returns>The id of the playlist</returns>        
+        private string GetPlaylistId(string playListIdentifier)
         {
             // example url: https://open.spotify.com/playlist/37i9dQZF1DX4xuWVBs4FgJ?si=ee30c0f70aa84b59
             // resulting id: 37i9dQZF1DX4xuWVBs4FgJ

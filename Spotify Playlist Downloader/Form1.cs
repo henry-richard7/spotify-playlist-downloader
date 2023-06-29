@@ -1,19 +1,4 @@
-﻿using Leaf.xNet;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Spotify_Playlist_Downloader.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
 
 namespace Spotify_Playlist_Downloader
@@ -53,12 +38,12 @@ namespace Spotify_Playlist_Downloader
 
             try
             {
-                helper.GetPlayListItems();                
+                helper.GetPlayListItems();
 
                 // playlist items to listview
                 for (int i = 0; i < helper.PlayListItems.Count; i++)
                 {
-                    listView_SongsList.Items.Add(helper.PlayListItems[i].track.name, i);                    
+                    listView_SongsList.Items.Add(helper.PlayListItems[i].track.name, i);
                 }
                 listView_SongsList.LargeImageList = helper.PlayListItemsImageList;
             }
@@ -83,7 +68,7 @@ namespace Spotify_Playlist_Downloader
 
             if (string.IsNullOrEmpty(textBox_PlaylistID.Text))
             {
-                throw new Exception("No playlist provided");                
+                throw new Exception("No playlist provided");
             }
 
             // check url
@@ -103,7 +88,7 @@ namespace Spotify_Playlist_Downloader
                 retVal = textBox_PlaylistID.Text;
             }
 
-            return retVal;            
+            return retVal;
         }
 
         private void listView_SongsList_MouseClick(object sender, MouseEventArgs e)
