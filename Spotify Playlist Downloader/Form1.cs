@@ -34,7 +34,7 @@ namespace Spotify_Playlist_Downloader
         private void EnableElements()
         {
             buttonGetSongs.Enabled = !string.IsNullOrEmpty(textBox_PlaylistID.Text);
-            btnDownloadAll.Enabled = !string.IsNullOrEmpty(textBox_PlaylistID.Text) && playlistItems != null && playlistItems.Count > 0;
+            btnDownloadAll.Enabled = helper != null;
         }
 
         /// <summary>
@@ -42,11 +42,8 @@ namespace Spotify_Playlist_Downloader
         /// </summary>
         private void ShowResult()
         {
-            MessageBox.Show($"Done! Downloaded {downloaded} songs, skipped {skipped} already existing songs!");
+            MessageBox.Show($"Done! Downloaded {helper.Downloaded} songs, skipped {helper.Skipped} already existing songs!");
         }
-
-        List<Item> playlistItems;
-        int downloaded, skipped;
 
         private void buttonGetSongs_Click(object sender, EventArgs e)
         {
@@ -111,66 +108,12 @@ namespace Spotify_Playlist_Downloader
 
         private void listView_SongsList_MouseClick(object sender, MouseEventArgs e)
         {
-            downloaded = 0;
-            skipped = 0;
-            DownloadSingleItem(playlistItems[listView_SongsList.FocusedItem.Index], Environment.CurrentDirectory + @"\\Downloads");
+            helper.ResetCounters();
+            helper.DownloadSingleItem(helper.PlayListItems[listView_SongsList.FocusedItem.Index], Environment.CurrentDirectory + @"\\Downloads");
             ShowResult();
         }
 
 
-        /// <summary>
-        /// Download a single item from the list of items
-        /// </summary>
-        /// <param name="playListItem">The item to download</param>
-        /// <param name="targetFolder">The target folder for the download</param>
-        private void DownloadSingleItem(Item item, string targetFolder)
-        {
-            // create targetfolde if not exists
-            if (!Directory.Exists(targetFolder))
-            {
-                Directory.CreateDirectory(targetFolder);
-            }
-
-            var client = new WebClient();
-            client.DownloadFile(item.track.album.images[0].url, targetFolder + "/thumb.jpg");
-            
-            string songName = item.track.name;
-            string songNameFile = songName.RemoveSpecialChars();
-            string artists = item.track.artists[0].name;
-            string artistsFile = artists.RemoveSpecialChars();
-            string songAlbum = item.track.album.name;
-            string songAlbumFile = songAlbum.RemoveSpecialChars();
-
-            // only process if file not exists
-            string target = Path.Combine(targetFolder, songNameFile + " - " + artistsFile + ".mp3");
-            if (File.Exists(target))
-            {
-                skipped++;
-            }
-            else
-            {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-                process.StartInfo.FileName = Environment.CurrentDirectory + @"\\youtube-dl.exe";
-
-                process.StartInfo.Arguments = "-x --no-continue " + "\"" + "ytsearch1: " + songNameFile + " " + artistsFile + "\" " + "--audio-format mp3 --audio-quality 0 -o " + "/Downloads/" + "\"" + songNameFile + " - " + artistsFile + "\"" + "." + "%(ext)s";
-                process.Start();
-                process.WaitForExit();
-
-                System.Diagnostics.Process tagEditor = new System.Diagnostics.Process();
-                tagEditor.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-
-                tagEditor.StartInfo.FileName = Environment.CurrentDirectory + @"\\tageditor.exe";
-
-                tagEditor.StartInfo.Arguments = "set title=" + "\"" + songName + "\"" + " album=" + "\"" + songAlbum + "\"" + " artist=" + "\"" + artists + "\"" + " cover=Downloads/thumb.jpg --files " + "\"" + "Downloads/" + songNameFile + " - " + artistsFile + ".mp3" + "\"";
-                tagEditor.Start();
-                tagEditor.WaitForExit();
-
-                File.Delete(Path.Combine(targetFolder, songNameFile + " - " + artistsFile + ".mp3.bak"));
-                File.Delete(Path.Combine(targetFolder, "thumb.jpg"));
-                downloaded++;
-            }
-        }
 
         private void paypalToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -199,18 +142,7 @@ namespace Spotify_Playlist_Downloader
         /// <param name="e"></param>
         private void BtnDownloadAll_Click(object sender, EventArgs e)
         {
-            downloaded = 0;
-            skipped = 0;
-
-            if (playlistItems == null || playlistItems.Count == 0)
-            {
-                return;
-            }
-            // download all
-            foreach (var item in playlistItems)
-            {
-                DownloadSingleItem(item, Environment.CurrentDirectory + @"\\Downloads");
-            }
+            helper.DownloadAll();
             ShowResult();
         }
 
