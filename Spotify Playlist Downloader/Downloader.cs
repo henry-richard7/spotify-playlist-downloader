@@ -1,12 +1,8 @@
 ﻿using Spotify_Playlist_Downloader.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Spotify_Playlist_Downloader
 {
@@ -17,12 +13,12 @@ namespace Spotify_Playlist_Downloader
     {
         public Item itemToDownload { get; private set; }
         public String targetFolder { get; private set; }
-        
+
         private ManualResetEvent _doneEvent;
 
         public Downloader(Item item, string targetFolder, ManualResetEvent doneEvent)
         {
-           itemToDownload = item;
+            itemToDownload = item;
             _doneEvent = doneEvent;
             this.targetFolder = targetFolder;
         }
@@ -30,7 +26,7 @@ namespace Spotify_Playlist_Downloader
         public void DownloadSingleItem()
         {
             itemToDownload.DownloadStatus = DownloadStatus.Unknown;
-                        
+
             // create targetfolde if not exists
             if (!Directory.Exists(targetFolder))
             {

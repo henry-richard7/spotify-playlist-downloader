@@ -5,14 +5,15 @@ using Spotify_Playlist_Downloader.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Windows.Forms;
 
 namespace Spotify_Playlist_Downloader
 {
 
+    /// <summary>
+    /// Class for handling the downloads
+    /// </summary>
     public class DownloadHelper
     {
         public string PlayListId { get; set; }
@@ -21,9 +22,9 @@ namespace Spotify_Playlist_Downloader
         /// <summary>
         /// Number of songs downloaded in last run
         /// </summary>
-        public int Downloaded 
+        public int Downloaded
         {
-            get { return PlayListItems.Count(i => i.DownloadStatus == DownloadStatus.Downloaded); } 
+            get { return PlayListItems.Count(i => i.DownloadStatus == DownloadStatus.Downloaded); }
         }
         /// <summary>
         /// Number of songs skipped in last run
@@ -33,8 +34,6 @@ namespace Spotify_Playlist_Downloader
             get { return PlayListItems.Count(i => i.DownloadStatus == DownloadStatus.Skipped); }
 
         }
-
-
 
         public DownloadHelper(string playListIdentifier)
         {
@@ -52,7 +51,7 @@ namespace Spotify_Playlist_Downloader
             downloadedImages.ColorDepth = ColorDepth.Depth32Bit;
             PlayListItemsImageList = downloadedImages;
         }
-      
+
         /// <summary>
         /// Get the playlist items
         /// </summary>
