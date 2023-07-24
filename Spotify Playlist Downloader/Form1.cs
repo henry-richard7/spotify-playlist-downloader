@@ -1,158 +1,71 @@
-﻿using Leaf.xNet;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
 
 namespace Spotify_Playlist_Downloader
 {
     public partial class Form1 : Form
     {
+        private DownloadHelper helper;
+
         public Form1()
         {
             InitializeComponent();
+            EnableElements();
         }
 
-        JArray playlistArray;
+        /// <summary>
+        /// Handle form elements enabled
+        /// </summary>
+        private void EnableElements()
+        {
+            buttonGetSongs.Enabled = !string.IsNullOrEmpty(textBox_PlaylistID.Text);
+            btnDownloadAll.Enabled = helper != null;
+        }
+
+        /// <summary>
+        /// Show a messagebox with the result
+        /// </summary>
+        private void ShowResult()
+        {
+            MessageBox.Show($"Done! Downloaded {helper.Downloaded} songs, skipped {helper.Skipped} already existing songs!");
+        }
 
         private void buttonGetSongs_Click(object sender, EventArgs e)
         {
+            // init
             listView_SongsList.Items.Clear();
+            helper = new DownloadHelper(textBox_PlaylistID.Text);
 
-            ImageList dowloadedImages = new ImageList();
-            dowloadedImages.ImageSize = new Size(236, 236);
-            dowloadedImages.ColorDepth = ColorDepth.Depth32Bit;
-
-            dowloadedImages.Images.Clear();
             try
             {
-                // fail early
-                var playlistId = GetPlaylistId();
+                helper.GetPlayListItems();
 
-                HttpRequest tokenRequest = new HttpRequest();
-                tokenRequest.UserAgent = Http.ChromeUserAgent();
-                String tokenJson = tokenRequest.Get("https://open.spotify.com/get_access_token?reason=transport&productType=web_player").ToString();
-
-                JObject spotifyJsonToken = JObject.Parse(tokenJson);
-
-                String spotifyToken = spotifyJsonToken.SelectToken("accessToken").ToString();
-
-                HttpRequest getSpotifyPlaylist = new HttpRequest();
-                getSpotifyPlaylist.AddHeader("Authorization", "Bearer " + spotifyToken);
-                String playlist = getSpotifyPlaylist.Get("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks?offset=0&limit=100").ToString();
-
-                JObject jobject = JObject.Parse(playlist);
-
-                playlistArray = JArray.Parse(jobject.SelectToken("items").ToString());
-
-                for (int i = 0; i < playlistArray.Count; i++)
+                // playlist items to listview
+                for (int i = 0; i < helper.PlayListItems.Count; i++)
                 {
-                    HttpRequest w = new HttpRequest();
-                    listView_SongsList.Items.Add(playlistArray[i].SelectToken("track").SelectToken("name").ToString(), i);
-                    try
-                    {
-                        var response = w.Get(playlistArray[i].SelectToken("track").SelectToken("album").SelectToken("images")[0].SelectToken("url").ToString());
-                        byte[] imageBytes = response.ToBytes();
-                        MemoryStream memoryStream = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                        memoryStream.Write(imageBytes, 0, imageBytes.Length);
-                        Image imgs = Image.FromStream(memoryStream, true);
-                        dowloadedImages.Images.Add(imgs);
-                    }
-                    catch
-                    {
-                        var response = w.Get("https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/600px-No_image_available.svg.png");
-                        byte[] imageBytes = response.ToBytes();
-                        MemoryStream memoryStream = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                        memoryStream.Write(imageBytes, 0, imageBytes.Length);
-                        Image imgs = Image.FromStream(memoryStream, true);
-                        dowloadedImages.Images.Add(imgs);
-                    }
-
-
+                    listView_SongsList.Items.Add(helper.PlayListItems[i].track.name, i);
                 }
-                listView_SongsList.LargeImageList = dowloadedImages;
+                listView_SongsList.LargeImageList = helper.PlayListItemsImageList;
             }
             catch
             {
                 MessageBox.Show("Make sure sou have passed a valid playlist ID or valid URL", "Playlist Not Found ERROR");
             }
 
-
-        }
-
-        /// <summary>
-        /// Get the playlist id from the textbox
-        /// </summary>
-        /// <returns>The id of the playlist</returns>        
-        private string GetPlaylistId()
-        {
-            // example url: https://open.spotify.com/playlist/37i9dQZF1DX4xuWVBs4FgJ?si=ee30c0f70aa84b59
-            // resulting id: 37i9dQZF1DX4xuWVBs4FgJ
-
-            string retVal = string.Empty;
-
-            if (string.IsNullOrEmpty(textBox_PlaylistID.Text))
-            {
-                throw new Exception("No playlist provided");                
-            }
-
-            // check url
-            try
-            {
-                Uri u = new Uri(textBox_PlaylistID.Text);
-                // get the last part
-                retVal = u.Segments[2];
-            }
-            catch (Exception)
-            {
-            }
-
-            // no url so it should be an playlist id
-            if (string.IsNullOrEmpty(retVal))
-            {
-                retVal = textBox_PlaylistID.Text;
-            }
-
-            return retVal;            
+            EnableElements();
         }
 
         private void listView_SongsList_MouseClick(object sender, MouseEventArgs e)
         {
-            var downloadPath = Environment.CurrentDirectory + @"\\Downloads";
-            var client = new WebClient();
-            client.DownloadFile(playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("album").SelectToken("images")[0].SelectToken("url").ToString(),downloadPath+"/thumb.jpg");
-
-            string songName = playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("name").ToString();
-            string artists = playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("artists")[0].SelectToken("name").ToString();
-            string songAlbum = playlistArray[listView_SongsList.FocusedItem.Index].SelectToken("track").SelectToken("album").SelectToken("name").ToString();
-
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            process.StartInfo.FileName = Environment.CurrentDirectory + @"\\youtube-dl.exe";
-            
-            process.StartInfo.Arguments = "-x --no-continue " + "\"" + "ytsearch1: " + songName + " " + artists + "\" " + "--audio-format mp3 --audio-quality 0 -o " + "/Downloads/"+"\"" + songName + " - " + songAlbum +"\""+ "." + "%(ext)s";
-            process.Start();
-            process.WaitForExit();
-
-            System.Diagnostics.Process tagEditor = new System.Diagnostics.Process();
-            tagEditor.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            
-            tagEditor.StartInfo.FileName = Environment.CurrentDirectory + @"\\tageditor.exe";
-
-            tagEditor.StartInfo.Arguments = "set title=" + "\"" + songName + "\""+" album=" + "\"" + songAlbum + "\"" + " artist=" + "\"" + artists + "\"" + " cover=Downloads/thumb.jpg --files " + "\"" + "Downloads/" + songName + " - " + songAlbum + ".mp3"+"\"";
-            tagEditor.Start();
-            tagEditor.WaitForExit();
-
-            File.Delete(Path.Combine(downloadPath, songName + " - " + songAlbum + ".mp3.bak"));
-            File.Delete(Path.Combine(downloadPath, "thumb.jpg"));
+            helper.DownloadSingleItem(helper.PlayListItems[listView_SongsList.FocusedItem.Index], Environment.CurrentDirectory + @"\\Downloads");
+            if (helper.PlayListItems[listView_SongsList.FocusedItem.Index].DownloadStatus == Models.DownloadStatus.Downloaded)
+            {
+                MessageBox.Show($"Done! Downloaded 1 song.");
+            }
+            else
+            {
+                MessageBox.Show($"Done! skipped 1 song.");
+            }
         }
 
         private void paypalToolStripMenuItem_Click(object sender, EventArgs e)
@@ -174,5 +87,22 @@ namespace Spotify_Playlist_Downloader
         {
             System.Diagnostics.Process.Start("https://t.me/cracked4free");
         }
+
+        /// <summary>
+        /// Download all songs
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnDownloadAll_Click(object sender, EventArgs e)
+        {
+            helper.DownloadAll(Environment.CurrentDirectory + @"\\Downloads");
+            ShowResult();
+        }
+
+        private void TextBox_PlaylistID_TextChanged(object sender, EventArgs e)
+        {
+            EnableElements();
+        }
+
     }
 }
