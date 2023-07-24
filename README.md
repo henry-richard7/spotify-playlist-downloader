@@ -43,20 +43,5 @@ https://github.com/henry-richard7/Spotify-Downloader
 
 [![](https://img.shields.io/youtube/channel/subscribers/UCVGasc5jr45eZUpZNHvbtWQ?style=social)](https://www.youtube.com/channel/UCVGasc5jr45eZUpZNHvbtWQ)
 
-# My Telegram Channel
-[![](https://img.shields.io/badge/Telegram-Join%20Now-blue?style=for-the-badge&logo=Telegram)](https://t.me/cracked4free)
-
-## 💰 Donations (Optional)
-If you like my projects then consider making a small donation by clicking below button it motivates me alot!, Thank you for your support!😁😁 
-<br/>
-
-[![](https://img.shields.io/badge/Donate-Paypal-blue?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/henryrics)
-
-## Bitcoin Address [BTC]
-bc1qc6u6qkw9hjttvy3rw6z7saj4sa2scm24dkks3n
-
-## Litecoin Address [LTC]
-MNnZSQaTjW8guxdFsSBaWLzuRnhoaDuner
-
 # Copyrights © [Henry Richard J](https://github.com/henry-richard7)
 #### Star the Repo in case you liked it :)
